@@ -40,4 +40,25 @@ public class Base62Test {
             assertEquals("Base62_ENCODE_ERROR", e.getMessage());
         }
     }
+
+    @Test
+    public void testDecode() throws Exception {
+        String encoded = "8M0kX";
+        BigInteger decoded = Base62Encoder.decode(encoded);
+        assertEquals(new BigInteger("123456789"), decoded);
+    }
+
+    @Test
+    public void testDecodeZero() throws Exception {
+        String encoded = "0";
+        BigInteger decoded = Base62Encoder.decode(encoded);
+        assertEquals(BigInteger.ZERO, decoded);
+    }
+
+    @Test
+    public void testDecodeLargeString() throws Exception {
+        String encoded = "BlafhneO193";
+        BigInteger decoded = Base62Encoder.decode(encoded);
+        assertEquals(new BigInteger("9876543210123456789"), decoded);
+    }
 }

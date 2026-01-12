@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.oBrway</groupId>
-	<artifactId>client</artifactId>
+	<artifactId>numberDistributor</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>client</name>
 	<description>Demo project for Spring Boot</description>
@@ -38,6 +38,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.34</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

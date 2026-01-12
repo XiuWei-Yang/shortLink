@@ -32,4 +32,24 @@ public class Base62Encoder {
 
         return encoded.toString();
     }
+
+    public static BigInteger decode(String encoded) throws Exception{
+        BigInteger value = BigInteger.ZERO;
+        BigInteger base = BigInteger.valueOf(BASE);
+
+        try{
+            for (int i = 0; i < encoded.length(); i++) {
+                char c = encoded.charAt(i);
+                int index = BASE62_CHARS.indexOf(c);
+                if (index == -1) {
+                    throw new IllegalArgumentException("Invalid character in Base62 string: " + c);
+                }
+                value = value.multiply(base).add(BigInteger.valueOf(index));
+            }
+        } catch (Exception e){
+            throw new Base62Exception(ResponseCode.Base62_DECODE_ERROR);
+        }
+
+        return value;
+    }
 }
