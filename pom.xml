@@ -16,8 +16,8 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>common</module>
-		<module>core</module>
+		<module>shortLink-common</module>
+		<module>shortLink-core</module>
 		<module>numberDistributor</module>
 	</modules>
 	
