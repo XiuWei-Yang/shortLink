@@ -11,7 +11,9 @@ public enum ResponseCode {
     SHORT_LINK_QUERY_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20003, "短链接查询错误"),
     Base62_DECODE_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20004, "Base62解码错误"),
     SHORT_LINK_STORE_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20005, "短链接存储错误"),
-    NUMBER_DISTRIBUTOR_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20006, "号码分配器错误")
+    NUMBER_DISTRIBUTOR_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20006, "号码分配器错误"),
+    ID_GENERATOR_INVOKE_ERROR(HttpResponseStatus.INTERNAL_SERVER_ERROR, 20007, "ID生成器调用错误"),
+    ID_GENERATOR_INVOKE_TIMEOUT(HttpResponseStatus.GATEWAY_TIMEOUT, 20008, "ID生成器调用超时")
     ;
 
 

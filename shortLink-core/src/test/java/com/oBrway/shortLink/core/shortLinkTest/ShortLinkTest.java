@@ -1,6 +1,6 @@
 package com.oBrway.shortLink.core.shortLinkTest;
 
-import com.oBrway.shortLink.core.service.IDGenerator.Implentation.IDGeneratorForTest;
+import com.oBrway.shortLink.core.service.IDGenerator.IDGeneratorForTest;
 import com.oBrway.shortLink.core.service.ShortLink;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;

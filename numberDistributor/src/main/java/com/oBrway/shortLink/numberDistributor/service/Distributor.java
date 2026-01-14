@@ -14,5 +14,9 @@ public interface Distributor {
 
     LinkedBlockingDeque<Long> getBatchNumberFromDistributor(ServiceDistributorKey key, int batchSize) throws  Exception;
 
+    /**
+     * 删除指定key,请勿在业务代码中使用，仅供测试使用
+     * @param key
+     */
     void deleteKey(String key);
 }
