@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class numberDistributorApplication {
+public class NumberDistributorApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(numberDistributorApplication.class, args);
+		SpringApplication.run(NumberDistributorApplication.class, args);
 	}
 
 }
