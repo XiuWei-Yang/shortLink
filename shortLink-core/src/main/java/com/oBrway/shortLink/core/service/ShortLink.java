@@ -21,7 +21,6 @@ import static java.lang.Thread.sleep;
 @Slf4j
 @Service
 @Setter
-@Scope("prototype")
 /**
  * 不要一直用一样的长链接生成短链接，否则一个长链接对应多个短链接，会造成资源的浪费
  */
