@@ -9,4 +9,6 @@ public interface CacheLayer {
     ShortLinkMappingInfo get(long key);
 
     void delete(long key);
+
+    public void updateExpireTime(long key);
 }

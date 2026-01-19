@@ -10,6 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -33,20 +35,25 @@ public class IDGeneratorInvoker implements IDGenerator {
     public LinkedBlockingDeque<Long> getNextID() throws Exception{
         int batchSize = config.getIdGenerator_step();
         try{
-            Mono<LinkedBlockingDeque<Long>> responseMono = fetchIDsFromService(batchSize);
+            Mono<List<Long>> responseMono = fetchIDsFromService(batchSize);
             /**
              * 这里实现比较简单，直接阻塞等待响应。在高性能要求下，应该考虑使用异步处理。
              * 异步使用Mono或者CompletableFuture等方式。
              * 这里设置超时时间，防止调用阻塞过久。超时后会抛出异常。
              */
-            return responseMono.block(Duration.ofSeconds(5));
+            List<Long> idList = responseMono.block(Duration.ofSeconds(5));
+            LinkedBlockingDeque<Long> idQueue = new LinkedBlockingDeque<>(idList);
+            for(long i = idList.get(0); i <= idList.get(1); i++){
+                idQueue.add(i);
+            }
+            return idQueue;
         } catch (Exception e) {
             throw new BaseException(e.getMessage(), ResponseCode.ID_GENERATOR_INVOKE_TIMEOUT);
         }
 
     }
 
-    private Mono<LinkedBlockingDeque<Long>> fetchIDsFromService(int batchSize) {
+    private Mono<List<Long>> fetchIDsFromService(int batchSize) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/redisDistributor/getIDs")
@@ -54,7 +61,7 @@ public class IDGeneratorInvoker implements IDGenerator {
                         .queryParam("batchSize", batchSize)
                         .build())
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<LinkedBlockingDeque<Long>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<Long>>() {});
     }
 
 }

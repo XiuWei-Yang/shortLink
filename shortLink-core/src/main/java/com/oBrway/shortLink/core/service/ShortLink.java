@@ -13,7 +13,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import static java.lang.Thread.sleep;
@@ -34,8 +33,6 @@ public class ShortLink {
     @Getter
     @Autowired
     private ShortLinkDAO shortLinkDAO;
-
-    private ReentrantLock lock = new ReentrantLock();
 
     public ShortLink() {
     }
@@ -64,26 +61,16 @@ public class ShortLink {
     }
 
     /**
-     * 如果取号数量和同时进入的请求数的乘积不大，可以考虑不加锁，此时一定的浪费比锁带来的不确定性更能接收（不加锁的方案很简单，在这里不提供）
+     * 如果取号数量和同时进入的请求数的乘积不大，可以考虑不加锁，此时一定的浪费比锁带来的不确定性更能接收
+     * 可以实现一个锁，保护取号操作，只有一个线程能取号，其他线程sleep等待，然后继续尝试取号
      * 还有一种实现，需要两把锁，一把锁保护取号，另一把锁用于提示等待取号完成，但是取号需要获取两把锁，在生产者消费者的关系不是非常清晰的情况下，可能会导致不可知情况的出现，严重影响性能
      * 如果id队列为空，则检查取号锁，如果没有其他线程在取号，则进行取号，完成后唤醒所有线程；如果有线程取号，则等待唤醒
      */
     private long getIdFormBuffer() throws Exception {
-        if(idBuffer.isEmpty()) {
-            if(lock.tryLock()) {
-                try{
-                    getIdsToBuffer();
-                } catch (Exception e) {
-                    throw new BaseException(e.getMessage(), ResponseCode.ID_GENERATOR_INVOKE_ERROR);
-                } finally {
-                    lock.unlock();
-                }
-            } else{
-                // 等3秒，超时后继续执行remove，如果取号器超时则队列空，会抛出异常
-                sleep(3000);
-            }
-        }
         try{
+            if(idBuffer.isEmpty()) {
+                getIdsToBuffer();
+            }
             return idBuffer.remove();
         } catch (Exception e) {
             log.error("Error getting ID from buffer: {}", e.getMessage());

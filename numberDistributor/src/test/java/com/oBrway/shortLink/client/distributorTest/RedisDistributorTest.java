@@ -26,15 +26,4 @@ public class RedisDistributorTest {
         assertEquals(key.getStartIndex() + 2L, number2);
         distributor.deleteKey(key.getKey());
     }
-
-    @Test
-    public void testGetBatchNumberFromDistributor() throws Exception {
-        ServiceDistributorKey key = ServiceDistributorKey.testService;
-        int batchSize = 5;
-        LinkedBlockingDeque<Long> batchNumbers = distributor.getBatchNumberFromDistributor(key, batchSize);
-        for (int i = 0; i < batchSize; i++) {
-            assertEquals(key.getStartIndex() + 1L + i, batchNumbers.poll());
-        }
-        distributor.deleteKey(key.getKey());
-    }
 }

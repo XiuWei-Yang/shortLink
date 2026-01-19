@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisCacheLayer implements CacheLayer {
+    private static final long TIMEOUT = 10;
 
     private final RedisTemplate<String, ShortLinkMappingInfo> redisTemplate;
 
@@ -33,7 +34,7 @@ public class RedisCacheLayer implements CacheLayer {
     @Override
     public void put(long key, ShortLinkMappingInfo value) {
         ValueOperations<String, ShortLinkMappingInfo> ops = redisTemplate.opsForValue();
-        ops.set(String.valueOf(key), value, 60, TimeUnit.MINUTES); // 设置过期时间为 60 分钟
+        ops.set(String.valueOf(key), value, TIMEOUT, TimeUnit.MINUTES); // 设置过期时间为 10 分钟
     }
 
     @Override
@@ -45,5 +46,9 @@ public class RedisCacheLayer implements CacheLayer {
     @Override
     public void delete(long key) {
         redisTemplate.delete(String.valueOf(key));
+    }
+
+    public void updateExpireTime(long key) {
+        redisTemplate.expire(String.valueOf(key), TIMEOUT, TimeUnit.MINUTES);
     }
 }

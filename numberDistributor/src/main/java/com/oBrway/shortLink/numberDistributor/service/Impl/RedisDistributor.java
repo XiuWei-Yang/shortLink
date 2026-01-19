@@ -1,4 +1,4 @@
-package com.oBrway.shortLink.numberDistributor.service.implementatiion;
+package com.oBrway.shortLink.numberDistributor.service.Impl;
 
 import com.oBrway.shortLink.common.enums.ServiceDistributorKey;
 import com.oBrway.shortLink.common.exception.BaseException;
@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -32,6 +33,9 @@ public class RedisDistributor implements Distributor {
         this.jedis = new Jedis(REDIS_HOST, REDIS_PORT);
     }
 
+    /**
+     * 生产环境中不要使用
+     */
     @Override
     public Long getNumberFromDistributor(ServiceDistributorKey key) throws Exception {
         try{
@@ -49,17 +53,24 @@ public class RedisDistributor implements Distributor {
 
     }
 
+    /**
+     * 返回号段，LinkedList中是{起始号码，结束号码}
+     * @param key
+     * @param batchSize
+     * @return
+     * @throws Exception
+     */
     @Override
-    public LinkedBlockingDeque<Long> getBatchNumberFromDistributor(ServiceDistributorKey key, int batchSize) throws Exception {
+    public List<Long> getBatchNumberFromDistributor(ServiceDistributorKey key, int batchSize) throws Exception {
         try{
             init();
             String serviceKey = key.getKey();
             int expireTime = key.getExpireTime();
-            LinkedBlockingDeque<Long> batchNumbers = new LinkedBlockingDeque<>();
-            for (int i = 0; i < batchSize; i++) {
-                long sequence = jedis.incr(serviceKey) + key.getStartIndex();
-                batchNumbers.add(sequence);
-            }
+            List<Long> batchNumbers = new LinkedList<>();
+            long end = jedis.incrBy(serviceKey, batchSize);
+            long start = end - batchSize + 1;//左边界不取
+            batchNumbers.add(start);
+            batchNumbers.add(end);
             jedis.expire(serviceKey, expireTime);
             return batchNumbers;
         } catch (Exception e) {

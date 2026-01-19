@@ -1,5 +1,6 @@
 package com.oBrway.shortLink.core.MapperTest;
 
+import com.oBrway.shortLink.core.model.ShortLinkMappingInfo;
 import org.junit.jupiter.api.Test;
 import com.oBrway.shortLink.core.respository.sql.ShortLinkMapper;
 import org.mybatis.spring.annotation.MapperScan;
@@ -24,8 +25,7 @@ public class shortLinkMapperTest {
 
     @Test
     public void getOriginalLinkByIdTest() {
-        String originalLink = shortLinkMapper.getOriginalLinkById(1L);
-
-        assertEquals("testtest", originalLink);
+        ShortLinkMappingInfo originalLink = shortLinkMapper.getOriginalLinkById(1L);
+        assertEquals("testtest", originalLink.getOriginalLink());
     }
 }

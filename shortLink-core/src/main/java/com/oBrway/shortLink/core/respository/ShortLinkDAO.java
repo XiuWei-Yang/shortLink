@@ -12,6 +12,8 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Time;
+
 /**
  * 数据库访问对象，布隆过滤器逻辑、缓存逻辑都在这里实现
  */
@@ -29,6 +31,8 @@ public class ShortLinkDAO {
     @Autowired
     private ShortLinkMapper shortLinkMapper;
 
+    private final long EXPIRE_TIME = 30L * 24 * 60 * 60 * 1000; // 30天后过期
+
     public ShortLinkDAO() {
     }
 
@@ -41,8 +45,9 @@ public class ShortLinkDAO {
      */
     public void storeShortLinkMapping(long id, String shortLink, String originalUrl) throws Exception {
         try{
-            shortLinkMapper.insertShortLinkMapping(id, shortLink, originalUrl);
-            ShortLinkMappingInfo info = new ShortLinkMappingInfo(id, shortLink, originalUrl);
+            Time expireTime = new Time(System.currentTimeMillis() + EXPIRE_TIME); // 30天后过期
+            shortLinkMapper.insertShortLinkMapping(id, shortLink, originalUrl, expireTime);
+            ShortLinkMappingInfo info = new ShortLinkMappingInfo(id, shortLink, originalUrl, expireTime);
             redisCache.put(id, info);
             redisBloomFilter.add(shortLink);
             localCache.put(id, info);
@@ -62,6 +67,7 @@ public class ShortLinkDAO {
             // Local Cache
             ShortLinkMappingInfo info = localCache.get(id);
             if (info != null) {
+                updateExpireTime(id);
                 return info.getOriginalLink();
             }
             // Bloom Filter
@@ -72,12 +78,19 @@ public class ShortLinkDAO {
             info = redisCache.get(id);
             if( info != null) {
                 localCache.put(id, info);
+                updateExpireTime(id);
                 return info.getOriginalLink();
             }
             // Database
-            String oUrl = shortLinkMapper.getOriginalLinkById(id);
+            ShortLinkMappingInfo oUrlInfo = shortLinkMapper.getOriginalLinkById(id);
+            String oUrl = oUrlInfo != null ? oUrlInfo.getOriginalLink() : null;
+            Time expireTime = oUrlInfo != null ? oUrlInfo.getExpireTime() : null;
+            if(expireTime == null || expireTime.getTime() < System.currentTimeMillis()) {
+                // 链接已过期, 由于业务需求，记录不删除
+                return null;
+            }
             if( oUrl != null && !oUrl.isEmpty()) {
-                info = new ShortLinkMappingInfo(id, shortLink, oUrl);
+                info = new ShortLinkMappingInfo(id, shortLink, oUrl, oUrlInfo.getExpireTime());
                 redisCache.put(id, info);
                 localCache.put(id, info);
                 return oUrl;
@@ -86,5 +99,9 @@ public class ShortLinkDAO {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private void updateExpireTime(long key){
+        redisCache.updateExpireTime(key);
     }
 }

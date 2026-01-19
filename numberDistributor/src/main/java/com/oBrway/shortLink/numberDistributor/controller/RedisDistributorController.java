@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.LinkedList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/redisDistributor")
@@ -21,7 +22,7 @@ public class RedisDistributorController {
 
     @GetMapping("/getIDs")
     @ResponseBody
-    public LinkedBlockingDeque<Long> getIDs(ServiceDistributorKey key, int batchSize) throws Exception {
+    public List<Long> getIDs(ServiceDistributorKey key, int batchSize) throws Exception {
         try {
             return distributor.getBatchNumberFromDistributor(key, batchSize);
         } catch (Exception e) {
