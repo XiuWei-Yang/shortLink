@@ -5,13 +5,13 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 @Mapper
 public interface ShortLinkMapper {
     @Insert("insert into url.url_mapping (id,short_url,long_url,expire_time)"+
-            "values(#{id},#{shortLink},#{originalLink}),#{expireTime})")
-    long insertShortLinkMapping(long id, String shortLink, String originalLink, Time expireTime);
+            "values(#{id},#{shortLink},#{originalLink},#{expireTime})")
+    long insertShortLinkMapping(long id, String shortLink, String originalLink, Timestamp expireTime);
 
     @Select("select long_url from url.url_mapping where short_url = #{shortLink} limit 1")
     String getOriginalLinkByShortLink(String shortLink);

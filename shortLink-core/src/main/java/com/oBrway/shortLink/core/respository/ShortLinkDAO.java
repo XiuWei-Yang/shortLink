@@ -12,7 +12,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 /**
  * 数据库访问对象，布隆过滤器逻辑、缓存逻辑都在这里实现
@@ -45,7 +45,7 @@ public class ShortLinkDAO {
      */
     public void storeShortLinkMapping(long id, String shortLink, String originalUrl) throws Exception {
         try{
-            Time expireTime = new Time(System.currentTimeMillis() + EXPIRE_TIME); // 30天后过期
+            Timestamp expireTime = new Timestamp(System.currentTimeMillis() + EXPIRE_TIME); // 30天后过期
             shortLinkMapper.insertShortLinkMapping(id, shortLink, originalUrl, expireTime);
             ShortLinkMappingInfo info = new ShortLinkMappingInfo(id, shortLink, originalUrl, expireTime);
             redisCache.put(id, info);
@@ -84,7 +84,7 @@ public class ShortLinkDAO {
             // Database
             ShortLinkMappingInfo oUrlInfo = shortLinkMapper.getOriginalLinkById(id);
             String oUrl = oUrlInfo != null ? oUrlInfo.getOriginalLink() : null;
-            Time expireTime = oUrlInfo != null ? oUrlInfo.getExpireTime() : null;
+            Timestamp expireTime = oUrlInfo != null ? oUrlInfo.getExpireTime() : null;
             if(expireTime == null || expireTime.getTime() < System.currentTimeMillis()) {
                 // 链接已过期, 由于业务需求，记录不删除
                 return null;
